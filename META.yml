@@ -1,0 +1,16 @@
+# http://module-build.sourceforge.net/META-spec.html
+#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
+name:         Sledge-Engine
+version:      0.01
+version_from: lib/Sledge/Engine.pm
+installdirs:  site
+requires:
+    Class::Inspector:              1.16
+    Module::Pluggable:             3.1
+    Sledge::Hammer:                1.0
+    Sledge::Utils:                 0.02
+    String::CamelCase:             0.01
+    Test::More:                    0
+
+distribution_type: module
+generated_by: ExtUtils::MakeMaker version 6.30
