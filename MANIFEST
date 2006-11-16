@@ -10,6 +10,7 @@ t/00-load.t
 t/01-use.t
 t/02-map.t
 t/03-run.t
+t/04-static.t
 t/lib/MyApp.pm
 t/lib/MyApp/Config.pm
 t/lib/MyApp/Config/_common.pm
@@ -17,5 +18,7 @@ t/lib/MyApp/Pages.pm
 t/lib/MyApp/Pages/Foo.pm
 t/lib/MyApp/Pages/Root.pm
 t/view/foo/bar.html
+t/view/foo/static.html
+t/view/hoge.html
 t/view/index.html
 META.yml                                 Module meta-data (added by MakeMaker)

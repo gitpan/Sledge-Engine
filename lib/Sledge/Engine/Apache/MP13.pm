@@ -20,7 +20,7 @@ sub handle_request {
     unless (Class::Inspector->loaded($class)) {
         $class->require;
     }
-    $class->new->dispatch($action->{method});
+    $class->new->dispatch($action->{page});
 }
 
 

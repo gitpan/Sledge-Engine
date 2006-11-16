@@ -3,14 +3,16 @@ package Sledge::Engine;
 use strict;
 use base qw(Class::Data::Inheritable);
 use Scalar::Util qw(blessed);
+use File::Basename ();
 use Class::Inspector;
 use UNIVERSAL::require;
 use Module::Pluggable::Object;
 use Carp ();
-
+use String::CamelCase qw(camelize);
 use Sledge::Utils;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
+our $StaticExtension = '.html';
 
 __PACKAGE__->mk_classdata('ActionMap' => {});
 __PACKAGE__->mk_classdata('ActionMapKeys' => []);
@@ -18,6 +20,9 @@ __PACKAGE__->mk_classdata('components' => []);
 
 sub import {
     my $pkg = shift;
+
+    return unless $pkg eq 'Sledge::Engine';
+
     my $caller = caller(0);
     no strict 'refs';
     my $engine = 'Sledge::Engine::CGI';
@@ -54,7 +59,7 @@ sub setup {
     for my $subclass(@{$pkg->components}) {
         my $methods = Class::Inspector->methods($subclass, 'public');
         for my $method(@{$methods}) {
-            if ($method =~ /^dispatch_/) {
+            if ($method =~ s/^dispatch_//) {
                 $pkg->register($subclass, $method);
             }
         }
@@ -65,14 +70,13 @@ sub setup {
 }
 
 sub register {
-    my($pkg, $class, $method) = @_;
+    my($pkg, $class, $page) = @_;
     my $prefix = Sledge::Utils::class2prefix($class);
-    $method =~ s/^dispatch_//;
-    my $path = $prefix eq '/' ? "/$method" : "$prefix/$method";
+    my $path = $prefix eq '/' ? "/$page" : "$prefix/$page";
     $path =~ s{/index$}{/};
     $pkg->ActionMap->{$path} = {
         class => $class,
-        method => $method,
+        page => $page,
     };
 }
 
@@ -80,7 +84,11 @@ sub lookup {
     my($self, $path) = @_;
     $path ||= '/';
     $path =~ s{/index$}{/};
-    if (my $action = $self->ActionMap->{$path}) {
+    my $action;
+    if ($action = $self->ActionMap->{$path}) {
+        return $action;
+    }
+    elsif ($action = $self->lookup_static($path)) {
         return $action;
     }
     # XXX handle arguments.
@@ -99,6 +107,37 @@ sub lookup {
 #         $action{args} = [split '/', $args];
 #     }
 #     return \%action;
+}
+
+sub lookup_static {
+    my($self, $path) = @_;
+    my($page, $dir, $suf) = 
+        File::Basename::fileparse($path, $StaticExtension);
+    return if index($page, '.') >= 0;
+    $page ||= 'index';
+    my $class;
+    if ($dir eq '/') {
+        my $appname = ref $self;
+        for my $subclass(qw(Root Index)) {
+            $class = join '::', $appname, 'Pages', $subclass;
+            last if $class->require;
+        }
+    }
+    else {
+        $dir =~ s{^/}{};
+        $dir =~ s{/$}{};
+        $class = join '::', 
+            ref($self), 'Pages', map { camelize($_) } split '/', $dir;
+    }
+    if ((Class::Inspector->loaded($class) || $class->require) && 
+            -e $class->guess_filename($page)) {
+        no strict 'refs';
+        *{"$class\::dispatch_$page"} = sub {} 
+            unless $class->can("dispatch_$page");
+        my %action = (class => $class, page => $page);
+        $self->ActionMap->{$path} = \%action;
+        return \%action;
+    }
 }
 
 sub run {

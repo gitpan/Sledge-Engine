@@ -10,11 +10,11 @@ is scalar @{MyApp->components}, 2;
 is_deeply({
     '/' => {
         class => 'MyApp::Pages::Root',
-        method => 'index',
+        page => 'index',
     },
     '/foo/bar' => {
         class => 'MyApp::Pages::Foo',
-        method => 'bar',
+        page => 'bar',
     },
 }, MyApp->ActionMap);
 

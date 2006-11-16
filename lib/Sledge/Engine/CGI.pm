@@ -16,7 +16,7 @@ sub handle_request {
     my $class = $action->{class};
     $class->require;
     my $pages = $class->new;
-    $pages->dispatch($action->{method});
+    $pages->dispatch($action->{page});
 }
 
 
