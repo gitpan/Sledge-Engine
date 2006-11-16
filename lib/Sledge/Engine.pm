@@ -11,12 +11,8 @@ use Carp ();
 use String::CamelCase qw(camelize);
 use Sledge::Utils;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 our $StaticExtension = '.html';
-
-__PACKAGE__->mk_classdata('ActionMap' => {});
-__PACKAGE__->mk_classdata('ActionMapKeys' => []);
-__PACKAGE__->mk_classdata('components' => []);
 
 sub import {
     my $pkg = shift;
@@ -39,6 +35,11 @@ sub import {
     }
     $engine->require;
     push @{"$caller\::ISA"}, $engine;
+
+    $caller->mk_classdata('ActionMap' => {});
+    $caller->mk_classdata('ActionMapKeys' => []);
+    $caller->mk_classdata('components' => []);
+
 }
 
 sub new {
@@ -49,8 +50,9 @@ sub new {
 
 sub setup {
     my $pkg = shift;
+
     my $pages_class = join '::', $pkg, 'Pages';
-    $pages_class->require or die $@;
+    $pages_class->use or die $@;
     my $finder = Module::Pluggable::Object->new(
         search_path => [$pages_class],
         require => 1,
