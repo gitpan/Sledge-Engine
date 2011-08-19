@@ -21,4 +21,4 @@ t/view/foo/bar.html
 t/view/foo/static.html
 t/view/hoge.html
 t/view/index.html
-META.yml                                 Module meta-data (added by MakeMaker)
+META.yml

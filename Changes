@@ -1,5 +1,8 @@
 Revision history for Sledge-Engine
 
+0.04    2011-08-19
+        Sledge::Engine::Apache::MP13 return response OK
+
 0.03    2006-11-16
         fixed mk_classdata confusion problems.
 

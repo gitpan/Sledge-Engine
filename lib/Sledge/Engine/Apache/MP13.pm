@@ -1,7 +1,7 @@
 package Sledge::Engine::Apache::MP13;
 use strict;
 use base qw(Sledge::Engine);
-use Apache::Constants qw(NOT_FOUND);
+use Apache::Constants qw(:common);
 use UNIVERSAL::require;
 use Class::Inspector;
 
@@ -21,6 +21,7 @@ sub handle_request {
         $class->require;
     }
     $class->new->dispatch($action->{page});
+    return OK;
 }
 
 
